@@ -25,8 +25,16 @@ LRESULT CALLBACK MainWindowCallback(HWND hWindow, UINT Message, WPARAM WParam,
         int X = Paint.rcPaint.left;
         int Y = Paint.rcPaint.top;
 
-        PatBlt(DeviceContext, X, Y, Width, Height, BLACKNESS);
+        static DWORD Color = BLACKNESS;
+
+        PatBlt(DeviceContext, X, Y, Width, Height, Color);
         EndPaint(hWindow, &Paint);
+
+        if (Color == BLACKNESS) {
+            Color = WHITENESS;
+        } else {
+            Color = BLACKNESS;
+        }
         break;
     }
     default:
