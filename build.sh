@@ -22,6 +22,7 @@ mkdir -p bin
   "$PROJECT_DIR/main.cpp" \
   -o bin/handmade.exe \
   -fuse-ld=lld \
-  -Wl,--pdb=bin/handmade.pdb
+  -Wl,--pdb=bin/handmade.pdb \
+  -lgdi32
 
 echo "Build OK: bin/handmade.exe + bin/handmade.pdb"
