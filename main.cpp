@@ -24,14 +24,8 @@ LRESULT CALLBACK MainWindowCallback(HWND hWindow, UINT Message, WPARAM WParam,
         int Width = Paint.rcPaint.right - Paint.rcPaint.left;
         int X = Paint.rcPaint.left;
         int Y = Paint.rcPaint.top;
-        static DWORD Operation = WHITENESS;
 
-        PatBlt(DeviceContext, X, Y, Width, Height, Operation);
-        if (Operation == WHITENESS) {
-            Operation = BLACKNESS;
-        } else {
-            Operation = WHITENESS;
-        }
+        PatBlt(DeviceContext, X, Y, Width, Height, BLACKNESS);
         EndPaint(hWindow, &Paint);
         break;
     }
@@ -64,7 +58,6 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance,
                 MSG Message;
                 BOOL MessageResult = GetMessage(&Message, 0, 0, 0);
                 if (MessageResult > 0) {
-                    TranslateMessage(&Message);
                     DispatchMessage(&Message);
                 } else {
                     break;
