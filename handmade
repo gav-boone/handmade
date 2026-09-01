@@ -2,7 +2,8 @@
 
 target:
 {
-  executable: "hello.exe"
-  working_directory: ""
+  executable: "bin/handmade.exe"
+  arguments: ""
+  working_directory: bin
   enabled: 1
 }
