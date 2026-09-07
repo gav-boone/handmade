@@ -1,4 +1,4 @@
-// Hello
+// hello again
 #include <windows.h>
 #include <wingdi.h>
 
