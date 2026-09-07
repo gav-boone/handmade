@@ -1,18 +1,41 @@
-#include <minwindef.h>
 #include <windows.h>
 #include <wingdi.h>
 
-LRESULT CALLBACK MainWindowCallback(HWND hWindow, UINT Message, WPARAM WParam,
-                                    LPARAM LParam) {
+#define private_func static
+#define local_persist static
+#define global_var static
+
+global_var bool RUNNING;
+
+private_func void Win32ResizeDIBSection(int Width, int Height){
+
+    CreateDIBSection(HDC hdc, const BITMAPINFO *lpbmi, UINT usage,
+                     void **ppvBits, HANDLE hSection, DWORD offset)
+
+}
+
+private_func
+    void Win32UpdateWindow(HWND hWindow, int X, int Y, int Width, int Height){
+        StretchDIBits(HDC hdc, int xDest, int yDest, int DestWidth,
+                      int DestHeight, int xSrc, int ySrc, int SrcWidth,
+                      int SrcHeight, const void *lpBits,
+                      const BITMAPINFO *lpbmi, UINT iUsage, DWORD rop)}
+
+LRESULT CALLBACK Win32MainWindowCallback(HWND hWindow, UINT Message,
+                                         WPARAM WParam, LPARAM LParam) {
     LRESULT Result = 0;
 
     switch (Message) {
-    case WM_SIZE:
-        // smth
-        break;
+    case WM_SIZE: {
+        RECT ClientRect;
+        GetClientRect(hWindow, &ClientRect);
+        int Height = ClientRect.bottom - ClientRect.top;
+        int Width = ClientRect.right - ClientRect.left;
+        Win32ResizeDIBSection(Width, Height);
+    } break;
     case WM_DESTROY:
-        break;
     case WM_CLOSE:
+        RUNNING = false;
         break;
     case WM_ACTIVATEAPP:
         break;
@@ -25,16 +48,9 @@ LRESULT CALLBACK MainWindowCallback(HWND hWindow, UINT Message, WPARAM WParam,
         int X = Paint.rcPaint.left;
         int Y = Paint.rcPaint.top;
 
-        static DWORD Color = BLACKNESS;
+        Win32UpdateWindow(hWindow, X, Y, Width, Height);
 
-        PatBlt(DeviceContext, X, Y, Width, Height, Color);
         EndPaint(hWindow, &Paint);
-
-        if (Color == BLACKNESS) {
-            Color = WHITENESS;
-        } else {
-            Color = BLACKNESS;
-        }
         break;
     }
     default:
@@ -50,7 +66,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance,
     WNDCLASS WindowClass = {};
 
     WindowClass.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
-    WindowClass.lpfnWndProc = MainWindowCallback;
+    WindowClass.lpfnWndProc = Win32MainWindowCallback;
     WindowClass.hInstance = hInstance;
     /*WindowClass.icon;*/
     WindowClass.lpszClassName = "HandmadeHeroWindowClass";
@@ -62,7 +78,8 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance,
             CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, hInstance, 0);
 
         if (hWindow) {
-            for (;;) {
+            RUNNING = true;
+            while (RUNNING) {
                 MSG Message;
                 BOOL MessageResult = GetMessage(&Message, 0, 0, 0);
                 if (MessageResult > 0) {

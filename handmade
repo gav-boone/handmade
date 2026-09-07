@@ -1,9 +1,8 @@
-// raddbg 0.9.27 project file
+// raddbg 0.9.28 project file
 
 target:
 {
   executable: "bin/handmade.exe"
-  arguments: ""
   working_directory: bin
   enabled: 1
 }
