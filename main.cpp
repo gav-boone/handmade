@@ -1,25 +1,22 @@
+#include <memoryapi.h>
 #include <windef.h>
 #include <windows.h>
 #include <wingdi.h>
+#include <winnt.h>
 
 #define private_func static
 #define local_persist static
 #define global_var static
 
 global_var bool Running;
+
 global_var BITMAPINFO BitmapInfo;
 global_var void *BitmapMemory;
-global_var HBITMAP BitmapHandle;
-global_var HDC BitmapDeviceContext;
 
 private_func void Win32ResizeDIBSection(int Width, int Height) {
 
-    if (BitmapHandle) {
-        DeleteObject(BitmapHandle);
-    }
-
-    if (!BitmapDeviceContext) {
-        BitmapDeviceContext = CreateCompatibleDC(0);
+    if (BitmapMemory) {
+        VirtualFree(BitmapMemory, 0, MEM_RELEASE);
     }
 
     BitmapInfo.bmiHeader.biSize = sizeof(BitmapInfo.bmiHeader);
@@ -29,8 +26,10 @@ private_func void Win32ResizeDIBSection(int Width, int Height) {
     BitmapInfo.bmiHeader.biBitCount = 32;
     BitmapInfo.bmiHeader.biCompression = BI_RGB;
 
-    BitmapHandle = CreateDIBSection(BitmapDeviceContext, &BitmapInfo,
-                                    DIB_RGB_COLORS, &BitmapMemory, 0, 0);
+    int BytesPerPixel = 4;
+    int BitmapMemorySize = BytesPerPixel * Width * Height;
+    BitmapMemory =
+        VirtualAlloc(0, BitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
 }
 
 private_func void Win32UpdateWindow(HDC DeviceContext, int X, int Y, int Width,
