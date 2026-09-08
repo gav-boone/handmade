@@ -4,3 +4,6 @@
 *.rdi
 *.obj
 *.ilk
+
+# Active clangd config is per-machine; copy from .clangd.windows or .clangd.linux
+/.clangd
