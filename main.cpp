@@ -1,4 +1,3 @@
-// hello again
 #include <windows.h>
 #include <wingdi.h>
 
@@ -8,19 +7,19 @@
 
 global_var bool RUNNING;
 
-private_func void Win32ResizeDIBSection(int Width, int Height){
+private_func void Win32ResizeDIBSection(int Width, int Height) {
 
     CreateDIBSection(HDC hdc, const BITMAPINFO *lpbmi, UINT usage,
                      void **ppvBits, HANDLE hSection, DWORD offset)
 
-}
+};
 
-private_func
-    void Win32UpdateWindow(HWND hWindow, int X, int Y, int Width, int Height){
-        StretchDIBits(HDC hdc, int xDest, int yDest, int DestWidth,
-                      int DestHeight, int xSrc, int ySrc, int SrcWidth,
-                      int SrcHeight, const void *lpBits,
-                      const BITMAPINFO *lpbmi, UINT iUsage, DWORD rop)}
+private_func void Win32UpdateWindow(HWND hWindow, int X, int Y, int Width,
+                                    int Height){
+    StretchDIBits(HDC hdc, int xDest, int yDest, int DestWidth, int DestHeight,
+                  int xSrc, int ySrc, int SrcWidth, int SrcHeight,
+                  const void *lpBits, const BITMAPINFO *lpbmi, UINT iUsage,
+                  DWORD rop)}
 
 LRESULT CALLBACK Win32MainWindowCallback(HWND hWindow, UINT Message,
                                          WPARAM WParam, LPARAM LParam) {

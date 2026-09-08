@@ -1,0 +1,8 @@
+CompileFlags:
+  Add:
+    - "--target=x86_64-w64-windows-gnu"
+    - "--sysroot=C:/Users/GBOONE/mingw64"
+    - "-isystem"
+    - "C:/Users/GBOONE/mingw64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/c++"
+    - "-isystem"
+    - "C:/Users/GBOONE/mingw64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/c++/x86_64-w64-mingw32"
