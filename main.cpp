@@ -19,16 +19,16 @@ struct win32_offscreen_buffer
     int BytesPerPixel;
 };
 
-global_var win32_offscreen_buffer GlobalBackBuffer;
-global_var bool Running;
-
 struct win32_window_dimensions
 {
     int Width;
     int Height;
 };
 
-win32_window_dimensions GetWindowDimensions(HWND hWindow)
+global_var win32_offscreen_buffer GlobalBackBuffer;
+global_var bool GlobalRunning;
+
+win32_window_dimensions Win32GetWindowDimensions(HWND hWindow)
 {
     win32_window_dimensions Result;
 
@@ -99,18 +99,19 @@ Win32ResizeDIBSection(win32_offscreen_buffer *Buffer, int Width, int Height)
 
 private_func void Win32DisplayBufferInWindow(win32_offscreen_buffer Buffer,
                                              HDC DeviceContext,
-                                             win32_window_dimensions Dimensions)
+                                             int WindowWidth,
+                                             int WindowHeight)
 {
-
+    // TODO: aspect ratio correction
     StretchDIBits(DeviceContext,
+                  0,
+                  0,
+                  WindowWidth,
+                  WindowHeight,
                   0,
                   0,
                   Buffer.Width,
                   Buffer.Height,
-                  0,
-                  0,
-                  Dimensions.Width,
-                  Dimensions.Height,
                   Buffer.Memory,
                   &Buffer.Info,
                   DIB_RGB_COLORS,
@@ -126,17 +127,9 @@ LRESULT CALLBACK Win32MainWindowCallback(HWND hWindow,
 
     switch (Message)
     {
-    case WM_SIZE:
-    {
-        win32_window_dimensions Dimensions = GetWindowDimensions(hWindow);
-        Win32ResizeDIBSection(&GlobalBackBuffer,
-                              Dimensions.Width,
-                              Dimensions.Height);
-    }
-    break;
     case WM_DESTROY:
     case WM_CLOSE:
-        Running = false;
+        GlobalRunning = false;
         break;
     case WM_ACTIVATEAPP:
         break;
@@ -144,8 +137,11 @@ LRESULT CALLBACK Win32MainWindowCallback(HWND hWindow,
     {
         PAINTSTRUCT Paint;
         HDC DeviceContext = BeginPaint(hWindow, &Paint);
-        win32_window_dimensions Dimensions = GetWindowDimensions(hWindow);
-        Win32DisplayBufferInWindow(GlobalBackBuffer, DeviceContext, Dimensions);
+        win32_window_dimensions Dimensions = Win32GetWindowDimensions(hWindow);
+        Win32DisplayBufferInWindow(GlobalBackBuffer,
+                                   DeviceContext,
+                                   Dimensions.Width,
+                                   Dimensions.Height);
         EndPaint(hWindow, &Paint);
         break;
     }
@@ -161,8 +157,9 @@ int CALLBACK WinMain(HINSTANCE hInstance,
                      LPSTR lpCmdLine,
                      int CmdShow)
 {
-
     WNDCLASS WindowClass = {};
+
+    Win32ResizeDIBSection(&GlobalBackBuffer, 1280, 720);
 
     WindowClass.style = CS_HREDRAW | CS_VREDRAW;
     WindowClass.lpfnWndProc = Win32MainWindowCallback;
@@ -190,15 +187,15 @@ int CALLBACK WinMain(HINSTANCE hInstance,
             int XOffset = 0;
             int YOffset = 0;
 
-            Running = true;
-            while (Running)
+            GlobalRunning = true;
+            while (GlobalRunning)
             {
                 MSG Message;
                 while (PeekMessageA(&Message, 0, 0, 0, PM_REMOVE))
                 {
                     if (Message.message == WM_QUIT)
                     {
-                        Running = false;
+                        GlobalRunning = false;
                     }
                     DispatchMessage(&Message);
                 }
@@ -208,10 +205,11 @@ int CALLBACK WinMain(HINSTANCE hInstance,
 
                 HDC DeviceContext = GetDC(hWindow);
                 win32_window_dimensions Dimensions =
-                    GetWindowDimensions(hWindow);
+                    Win32GetWindowDimensions(hWindow);
                 Win32DisplayBufferInWindow(GlobalBackBuffer,
                                            DeviceContext,
-                                           Dimensions);
+                                           Dimensions.Width,
+                                           Dimensions.Height);
                 ReleaseDC(hWindow, DeviceContext);
             }
         }
