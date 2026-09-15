@@ -3,3 +3,11 @@ IndentWidth: 4
 TabWidth: 4
 UseTab: Never
 ContinuationIndentWidth: 4
+BreakBeforeBraces: Allman
+
+# Break function args/params onto their own lines when the line is too long.
+ColumnLimit: 80
+BinPackArguments: false
+BinPackParameters: false
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
