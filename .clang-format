@@ -6,8 +6,9 @@ ContinuationIndentWidth: 4
 BreakBeforeBraces: Allman
 
 # Break function args/params onto their own lines when the line is too long.
-ColumnLimit: 80
+ColumnLimit: 100
 BinPackArguments: false
 BinPackParameters: false
 AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
+BreakAfterReturnType: AllDefinitions
