@@ -1,6 +1,7 @@
 #include <minwindef.h>
 #include <stdint.h>
 #include <windows.h>
+#include <winerror.h>
 #include <xinput.h>
 
 #define private_func static
@@ -31,21 +32,26 @@ global_var int YPosition = 0;
 // NOTE: XInputGetState support
 #define X_INPUT_GET_STATE(name) DWORD WINAPI name(DWORD dwUserIndex, XINPUT_STATE *pState)
 typedef X_INPUT_GET_STATE(x_input_get_state);
-X_INPUT_GET_STATE(XInputGetStateStub) { return 0; }
+X_INPUT_GET_STATE(XInputGetStateStub) { return ERROR_DEVICE_NOT_CONNECTED; }
 global_var x_input_get_state *XInputGetState_ = XInputGetStateStub;
 #define XInputGetState XInputGetState_
 
 // NOTE: XInputSetState support
 #define X_INPUT_SET_STATE(name) DWORD WINAPI name(DWORD dwUserIndex, XINPUT_STATE *pState)
 typedef X_INPUT_SET_STATE(x_input_set_state);
-X_INPUT_SET_STATE(XInputSetStateStub) { return 0; }
+X_INPUT_SET_STATE(XInputSetStateStub) { return ERROR_DEVICE_NOT_CONNECTED; }
 global_var x_input_set_state *XInputSetState_ = XInputSetStateStub;
 #define XInputSetState XInputSetState_
 
 private_func void
 Win32LoadXInput(void)
 {
-    HMODULE XInputLibrary = LoadLibrary("xinput1_3.dll");
+    HMODULE XInputLibrary = LoadLibraryA("xinput1_4.dll");
+    if (!XInputLibrary)
+    {
+        HMODULE XInputLibrary = LoadLibraryA("xinput1_3.dll");
+    }
+
     if (XInputLibrary)
     {
         XInputGetState = (x_input_get_state *)GetProcAddress(XInputLibrary, "XInputGetState");
@@ -150,8 +156,9 @@ Win32HandleKeyboardInputs(WPARAM WParam, WPARAM LParam)
     uint32_t VKCode = WParam;
     bool WasDown = ((LParam & (1 << 30)) != 0);
     bool IsDown = ((LParam & (1 << 31)) == 0);
+    bool AltKeyWasDown = ((LParam & (1 << 29)) != 0);
 
-    if (WasDown ^ IsDown)
+    if (WasDown != IsDown)
     {
         switch (VKCode)
         {
@@ -192,6 +199,11 @@ Win32HandleKeyboardInputs(WPARAM WParam, WPARAM LParam)
         {
         }
         break;
+        }
+
+        if ((VKCode == VK_F4) && AltKeyWasDown)
+        {
+            GlobalRunning = false;
         }
     }
 }
@@ -313,6 +325,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int C
 
         if (hWindow)
         {
+            /*Win32InitDSound();*/
             GlobalRunning = true;
             while (GlobalRunning)
             {
