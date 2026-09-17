@@ -1,4 +1,3 @@
-#include <libloaderapi.h>
 #include <minwindef.h>
 #include <stdint.h>
 #include <windows.h>
@@ -26,6 +25,8 @@ struct win32_window_dimensions
 
 global_var win32_offscreen_buffer GlobalBackBuffer;
 global_var bool GlobalRunning;
+global_var int XPosition = 0;
+global_var int YPosition = 0;
 
 // NOTE: XInputGetState support
 #define X_INPUT_GET_STATE(name) DWORD WINAPI name(DWORD dwUserIndex, XINPUT_STATE *pState)
@@ -122,7 +123,7 @@ Win32ResizeDIBSection(win32_offscreen_buffer *Buffer, int Width, int Height)
 }
 
 private_func void
-Win32DisplayBufferInWindow(win32_offscreen_buffer Buffer,
+Win32DisplayBufferInWindow(win32_offscreen_buffer *Buffer,
                            HDC DeviceContext,
                            int WindowWidth,
                            int WindowHeight)
@@ -135,12 +136,64 @@ Win32DisplayBufferInWindow(win32_offscreen_buffer Buffer,
                   WindowHeight,
                   0,
                   0,
-                  Buffer.Width,
-                  Buffer.Height,
-                  Buffer.Memory,
-                  &Buffer.Info,
+                  Buffer->Width,
+                  Buffer->Height,
+                  Buffer->Memory,
+                  &Buffer->Info,
                   DIB_RGB_COLORS,
                   SRCCOPY);
+}
+
+private_func void
+Win32HandleKeyboardInputs(WPARAM WParam, WPARAM LParam)
+{
+    uint32_t VKCode = WParam;
+    bool WasDown = ((LParam & (1 << 30)) != 0);
+    bool IsDown = ((LParam & (1 << 30)) == 0);
+
+    if (WasDown ^ IsDown)
+    {
+        switch (VKCode)
+        {
+        case ('W'):
+        case (VK_UP):
+        {
+            YPosition += 8;
+        }
+        break;
+        case ('A'):
+        case (VK_LEFT):
+        {
+            XPosition += 8;
+        }
+        break;
+        case ('S'):
+        case (VK_DOWN):
+        {
+            YPosition -= 8;
+        }
+        break;
+        case ('D'):
+        case (VK_RIGHT):
+        {
+            XPosition -= 8;
+        }
+        break;
+        case ('Q'):
+        {
+        }
+        break;
+        case ('E'):
+        case (VK_ESCAPE):
+        {
+        }
+        break;
+        case (VK_SPACE):
+        {
+        }
+        break;
+        }
+    }
 }
 
 LRESULT CALLBACK
@@ -156,12 +209,20 @@ Win32MainWindowCallback(HWND hWindow, UINT Message, WPARAM WParam, LPARAM LParam
         break;
     case WM_ACTIVATEAPP:
         break;
+    case WM_SYSKEYDOWN:
+    case WM_SYSKEYUP:
+    case WM_KEYDOWN:
+    case WM_KEYUP:
+    {
+        Win32HandleKeyboardInputs(WParam, LParam);
+    }
+    break;
     case WM_PAINT:
     {
         PAINTSTRUCT Paint;
         HDC DeviceContext = BeginPaint(hWindow, &Paint);
         win32_window_dimensions Dimensions = Win32GetWindowDimensions(hWindow);
-        Win32DisplayBufferInWindow(GlobalBackBuffer,
+        Win32DisplayBufferInWindow(&GlobalBackBuffer,
                                    DeviceContext,
                                    Dimensions.Width,
                                    Dimensions.Height);
@@ -175,12 +236,57 @@ Win32MainWindowCallback(HWND hWindow, UINT Message, WPARAM WParam, LPARAM LParam
     return Result;
 }
 
+private_func void
+Win32HandleMessages()
+{
+    MSG Message;
+    while (PeekMessageA(&Message, 0, 0, 0, PM_REMOVE))
+    {
+        if (Message.message == WM_QUIT)
+        {
+            GlobalRunning = false;
+        }
+        DispatchMessage(&Message);
+    }
+}
+
+private_func void
+Win32HandleControllerInputs()
+{
+    DWORD dwResult;
+    for (DWORD ControllerIndex = 0; ControllerIndex < XUSER_MAX_COUNT; ++ControllerIndex)
+    {
+
+        XINPUT_STATE ControllerState;
+        if (XInputGetState(ControllerIndex, &ControllerState) == ERROR_SUCCESS)
+        {
+            XINPUT_GAMEPAD *Pad = &ControllerState.Gamepad;
+
+            bool DPadUp = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_UP);
+            bool DPadDown = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_DOWN);
+            bool DPadLeft = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_LEFT);
+            bool DPadRight = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_RIGHT);
+            bool Start = (Pad->wButtons & XINPUT_GAMEPAD_START);
+            bool Back = (Pad->wButtons & XINPUT_GAMEPAD_BACK);
+            bool Left_Shoulder = (Pad->wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER);
+            bool Right_Shoulder = (Pad->wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER);
+            bool AButton = (Pad->wButtons & XINPUT_GAMEPAD_A);
+            bool BButton = (Pad->wButtons & XINPUT_GAMEPAD_B);
+            bool XButton = (Pad->wButtons & XINPUT_GAMEPAD_X);
+            bool YButton = (Pad->wButtons & XINPUT_GAMEPAD_Y);
+
+            int16_t StickX = Pad->sThumbLX;
+            int16_t StickY = Pad->sThumbLY;
+        }
+    }
+}
+
 int CALLBACK
 WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int CmdShow)
 {
     Win32LoadXInput();
 
-    WNDCLASS WindowClass = {};
+    WNDCLASSA WindowClass = {};
 
     Win32ResizeDIBSection(&GlobalBackBuffer, 1280, 720);
 
@@ -207,64 +313,24 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int C
 
         if (hWindow)
         {
-            int XOffset = 0;
-            int YOffset = 0;
-
             GlobalRunning = true;
             while (GlobalRunning)
             {
-                MSG Message;
-                while (PeekMessageA(&Message, 0, 0, 0, PM_REMOVE))
-                {
-                    if (Message.message == WM_QUIT)
-                    {
-                        GlobalRunning = false;
-                    }
-                    DispatchMessage(&Message);
-                }
+                Win32HandleMessages();
 
-                DWORD dwResult;
-                for (DWORD ControllerIndex = 0; ControllerIndex < XUSER_MAX_COUNT;
-                     ++ControllerIndex)
-                {
+                Win32HandleControllerInputs();
 
-                    XINPUT_STATE ControllerState;
-                    if (XInputGetState(ControllerIndex, &ControllerState) == ERROR_SUCCESS)
-                    {
-                        XINPUT_GAMEPAD *Pad = &ControllerState.Gamepad;
-
-                        bool DPadUp = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_UP);
-                        bool DPadDown = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_DOWN);
-                        bool DPadLeft = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_LEFT);
-                        bool DPadRight = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_RIGHT);
-                        bool Start = (Pad->wButtons & XINPUT_GAMEPAD_START);
-                        bool Back = (Pad->wButtons & XINPUT_GAMEPAD_BACK);
-                        bool Left_Shoulder = (Pad->wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER);
-                        bool Right_Shoulder = (Pad->wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER);
-                        bool AButton = (Pad->wButtons & XINPUT_GAMEPAD_A);
-                        bool BButton = (Pad->wButtons & XINPUT_GAMEPAD_B);
-                        bool XButton = (Pad->wButtons & XINPUT_GAMEPAD_X);
-                        bool YButton = (Pad->wButtons & XINPUT_GAMEPAD_Y);
-
-                        int16_t StickX = Pad->sThumbLX;
-                        int16_t StickY = Pad->sThumbLY;
-                    }
-                }
-
-                RenderWeirdGradient(GlobalBackBuffer, XOffset, YOffset);
+                RenderWeirdGradient(GlobalBackBuffer, XPosition, YPosition);
 
                 HDC DeviceContext = GetDC(hWindow);
 
                 win32_window_dimensions Dimensions = Win32GetWindowDimensions(hWindow);
-                Win32DisplayBufferInWindow(GlobalBackBuffer,
+                Win32DisplayBufferInWindow(&GlobalBackBuffer,
                                            DeviceContext,
                                            Dimensions.Width,
                                            Dimensions.Height);
 
                 ReleaseDC(hWindow, DeviceContext);
-
-                ++XOffset;
-                ++YOffset;
             }
         }
         else
