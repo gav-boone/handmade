@@ -1,7 +1,6 @@
 #include <minwindef.h>
 #include <stdint.h>
 #include <windows.h>
-#include <winerror.h>
 #include <xinput.h>
 
 #define private_func static
