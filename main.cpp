@@ -149,7 +149,7 @@ Win32HandleKeyboardInputs(WPARAM WParam, WPARAM LParam)
 {
     uint32_t VKCode = WParam;
     bool WasDown = ((LParam & (1 << 30)) != 0);
-    bool IsDown = ((LParam & (1 << 30)) == 0);
+    bool IsDown = ((LParam & (1 << 31)) == 0);
 
     if (WasDown ^ IsDown)
     {
