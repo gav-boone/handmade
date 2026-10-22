@@ -25,8 +25,9 @@ struct win32_window_dimensions
 
 global_var win32_offscreen_buffer GlobalBackBuffer;
 global_var bool GlobalRunning;
-global_var int XPosition = 0;
-global_var int YPosition = 0;
+global_var int GlobalXPosition = 0;
+global_var int GlobalYPosition = 0;
+global_var LPDIRECTSOUNDBUFFER GlobalSecondaryBuffer;
 
 // NOTE: XInputGetState support
 #define X_INPUT_GET_STATE(name) DWORD WINAPI name(DWORD dwUserIndex, XINPUT_STATE *pState)
@@ -169,25 +170,25 @@ Win32HandleKeyboardInputs(WPARAM WParam, WPARAM LParam)
         case ('W'):
         case (VK_UP):
         {
-            YPosition += 8;
+            GlobalYPosition += 8;
         }
         break;
         case ('A'):
         case (VK_LEFT):
         {
-            XPosition += 8;
+            GlobalXPosition += 8;
         }
         break;
         case ('S'):
         case (VK_DOWN):
         {
-            YPosition -= 8;
+            GlobalYPosition -= 8;
         }
         break;
         case ('D'):
         case (VK_RIGHT):
         {
-            XPosition -= 8;
+            GlobalXPosition -= 8;
         }
         break;
         case ('Q'):
@@ -350,8 +351,8 @@ Win32InitDSound(HWND hWindow, int32_t SamplePerSecond, int32_t BufferSize)
             BufferDescription.dwBufferBytes = BufferSize;
             BufferDescription.lpwfxFormat = &WaveFormat;
 
-            LPDIRECTSOUNDBUFFER SecondaryBuffer;
-            if (SUCCEEDED(DirectSound->CreateSoundBuffer(&BufferDescription, &SecondaryBuffer, 0)))
+            if (SUCCEEDED(
+                    DirectSound->CreateSoundBuffer(&BufferDescription, &GlobalSecondaryBuffer, 0)))
             {
                 // start playing
                 OutputDebugStringA("SecondaryBuffer was set. \n");
@@ -398,7 +399,18 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int C
 
         if (hWindow)
         {
-            Win32InitDSound(hWindow, 48000, 48000 * sizeof(int16_t) * 2);
+            HDC DeviceContext = GetDC(hWindow);
+
+            int SamplePerSecond = 48000;
+            int32_t RunningSampleIndex = 0;
+            int16_t ToneVolume = 500;
+            int SquareWavePeriod = SamplePerSecond / 256;
+            int BytesPerSample = sizeof(int16_t) * 2;
+            int SecondaryBufferSize = SamplePerSecond * BytesPerSample;
+
+            Win32InitDSound(hWindow, SamplePerSecond, SecondaryBufferSize);
+            GlobalSecondaryBuffer->Play(0, 0, DSBPLAY_LOOPING);
+
             GlobalRunning = true;
             while (GlobalRunning)
             {
@@ -406,17 +418,67 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int C
 
                 Win32HandleControllerInputs();
 
-                RenderWeirdGradient(GlobalBackBuffer, XPosition, YPosition);
+                RenderWeirdGradient(GlobalBackBuffer, GlobalXPosition, GlobalYPosition);
 
-                HDC DeviceContext = GetDC(hWindow);
+                // Direct Sound Output Test
+                DWORD PlayCursor;
+                DWORD WriteCuror;
+                if (SUCCEEDED(GlobalSecondaryBuffer->GetCurrentPosition(&PlayCursor, &WriteCuror)))
+                {
+                    DWORD ByteToLock = RunningSampleIndex * BytesPerSample % SecondaryBufferSize;
+                    DWORD BytesToWrite;
+                    if (ByteToLock > PlayCursor)
+                    {
+                        BytesToWrite = SecondaryBufferSize - ByteToLock;
+                        BytesToWrite += PlayCursor;
+                    }
+                    else
+                    {
+                        BytesToWrite = PlayCursor - ByteToLock;
+                    }
+
+                    VOID *Region1;
+                    DWORD Region1Size;
+                    VOID *Region2;
+                    DWORD Region2Size;
+                    if (SUCCEEDED(GlobalSecondaryBuffer->Lock(ByteToLock,
+                                                              BytesToWrite,
+                                                              &Region1,
+                                                              &Region1Size,
+                                                              &Region2,
+                                                              &Region2Size,
+                                                              0)))
+                    {
+
+                        int16_t *SampleOut = (int16_t *)Region1;
+                        DWORD Region1SampleCount = Region1Size / BytesPerSample;
+                        for (DWORD SampleIndex = 0; SampleIndex < Region1SampleCount; ++SampleIndex)
+                        {
+                            int16_t SampleValue =
+                                ((RunningSampleIndex++ / (SquareWavePeriod / 2)) % 2) ? ToneVolume
+                                                                                      : -ToneVolume;
+                            *SampleOut++ = SampleValue;
+                            *SampleOut++ = SampleValue;
+                        }
+                        SampleOut = (int16_t *)Region2;
+                        DWORD Region2SampleCount = Region2Size / BytesPerSample;
+                        for (DWORD SampleIndex = 0; SampleIndex < Region2SampleCount; ++SampleIndex)
+                        {
+                            int16_t SampleValue =
+                                ((RunningSampleIndex++ / (SquareWavePeriod / 2)) % 2) ? ToneVolume
+                                                                                      : -ToneVolume;
+                            *SampleOut++ = SampleValue;
+                            *SampleOut++ = SampleValue;
+                        }
+                        GlobalSecondaryBuffer->Unlock(Region1, Region1Size, Region2, Region2Size);
+                    }
+                }
 
                 win32_window_dimensions Dimensions = Win32GetWindowDimensions(hWindow);
                 Win32DisplayBufferInWindow(&GlobalBackBuffer,
                                            DeviceContext,
                                            Dimensions.Width,
                                            Dimensions.Height);
-
-                ReleaseDC(hWindow, DeviceContext);
             }
         }
         else
