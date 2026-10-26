@@ -8,9 +8,9 @@
 
 set -e
 
-CLANG="/c/Users/GBOONE/tools/LLVM/bin/clang++.exe"
-SYSROOT="C:/Users/GBOONE/mingw64"
-PROJECT_DIR="C:/Users/GBOONE/Documents/Code-Projects/handmade"
+CLANG="/c/Users/gboone/Programs/clang+llvm-23.1.4-x86_64-pc-windows-msvc/bin/clang++.exe"
+SYSROOT="C:/Users/GBOONE/Programs/mingw64"
+PROJECT_DIR="C:/Users/GBOONE/Documents/Code/handmade"
 
 mkdir -p bin
 

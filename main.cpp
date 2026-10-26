@@ -1,5 +1,3 @@
-#include <cmath>
-#include <cstdint>
 #include <dsound.h>
 #include <math.h>
 #include <stdint.h>
