@@ -513,8 +513,8 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int C
 
                 // Direct Sound Output Test
                 DWORD PlayCursor;
-                DWORD WriteCuror;
-                if (SUCCEEDED(GlobalSecondaryBuffer->GetCurrentPosition(&PlayCursor, &WriteCuror)))
+                DWORD WriteCursor;
+                if (SUCCEEDED(GlobalSecondaryBuffer->GetCurrentPosition(&PlayCursor, &WriteCursor)))
                 {
                     DWORD ByteToLock =
                         (SoundOutput.RunningSampleIndex * SoundOutput.BytesPerSample) %
