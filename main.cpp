@@ -69,13 +69,26 @@ Win32LoadXInput(void)
     HMODULE XInputLibrary = LoadLibraryA("xinput1_4.dll");
     if (!XInputLibrary)
     {
+        HMODULE XInputLibrary = LoadLibraryA("xinput9_1_0.dll");
+    }
+
+    if (!XInputLibrary)
+    {
         HMODULE XInputLibrary = LoadLibraryA("xinput1_3.dll");
     }
 
     if (XInputLibrary)
     {
         XInputGetState = (x_input_get_state *)GetProcAddress(XInputLibrary, "XInputGetState");
+        if (!XInputGetState)
+        {
+            XInputGetState = XInputGetStateStub;
+        }
         XInputSetState = (x_input_set_state *)GetProcAddress(XInputLibrary, "XInputSetState");
+        if (!XInputGetState)
+        {
+            XInputGetState = XInputGetStateStub;
+        }
     }
 }
 
@@ -262,7 +275,7 @@ Win32MainWindowCallback(HWND hWindow, UINT Message, WPARAM WParam, LPARAM LParam
         break;
     }
     default:
-        Result = DefWindowProc(hWindow, Message, WParam, LParam);
+        Result = DefWindowProcA(hWindow, Message, WParam, LParam);
         break;
     }
     return Result;
