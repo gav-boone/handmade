@@ -27,6 +27,17 @@ struct win32_window_dimensions
     int Height;
 };
 
+struct win32_sound_output
+{
+    int SamplePerSecond;
+    int32_t RunningSampleIndex;
+    int16_t ToneVolume;
+    int WavePeriod;
+    int BytesPerSample;
+    int SecondaryBufferSize;
+    int LatencySampleCount;
+};
+
 global_var win32_offscreen_buffer GlobalBackBuffer;
 global_var bool GlobalRunning;
 global_var int GlobalXPosition = 0;
@@ -370,16 +381,6 @@ Win32InitDSound(HWND hWindow, int32_t SamplePerSecond, int32_t BufferSize)
     {
     }
 }
-
-struct win32_sound_output
-{
-    int SamplePerSecond;
-    int32_t RunningSampleIndex;
-    int16_t ToneVolume;
-    int WavePeriod;
-    int BytesPerSample;
-    int SecondaryBufferSize;
-};
 
 void
 Win32FillSoundBuffer(win32_sound_output *SoundOutput, DWORD ByteToLock, DWORD BytesToWrite)
