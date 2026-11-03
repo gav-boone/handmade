@@ -545,9 +545,9 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int C
 
                 uint64_t CyclesElapsed = EndCycleCount - LastCycleCount;
                 int64_t CounterElapsed = EndCounter.QuadPart - LastCounter.QuadPart;
-                float32 MsPerFrame = (1000.0f * (float32)CounterElapsed / (float32)PerfCountFreq);
-                float32 FramesPerSec = (float32)PerfCountFreq / (float32)CounterElapsed;
-                float32 MegaCycles = (float32)CyclesElapsed / (1000.0f * 1000.0f);
+                float64 MsPerFrame = (1000.0f * (float64)CounterElapsed / (float64)PerfCountFreq);
+                float64 FramesPerSec = (float64)PerfCountFreq / (float64)CounterElapsed;
+                float64 MegaCycles = (float64)CyclesElapsed / (1000.0f * 1000.0f);
 
                 char Buffer[256];
                 sprintf(Buffer,
