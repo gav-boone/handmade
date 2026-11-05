@@ -19,11 +19,12 @@
 
 #include <dsound.h>
 #include <math.h>
-#include <profileapi.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <windows.h>
 #include <xinput.h>
+
+#include "handmade.h"
 
 #define private_func static
 #define local_persist static
@@ -528,7 +529,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int C
 
                 Win32HandleControllerInputs();
 
-                RenderWeirdGradient(GlobalBackBuffer, GlobalXPosition, GlobalYPosition);
+                GameUpdateAndRender();
 
                 // Direct Sound Output Test
                 DWORD PlayCursor;

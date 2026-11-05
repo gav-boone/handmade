@@ -14,7 +14,7 @@ let args = [
     "-gcodeview"
     "-O0"
     $"-fdebug-compilation-dir=($proj_dir)"
-    $"($proj_dir)/main.cpp"
+    $"($proj_dir)/win32_main.cpp"
     "-o"
     "bin/handmade.exe"
     "-fuse-ld=lld"
