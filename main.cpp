@@ -1,3 +1,22 @@
+// TODO: This is not finalized
+//
+// - save game location
+// - handle to exec
+// - asset loading path
+// - threading
+// - raw input
+// - sleep/time begin
+// - clipCursor
+// - fullscreen support
+// - wm set cursor
+// - QueryCancelAutoplay
+// - WM_ACTIVATEAPP
+// - Blit speed go up
+// - Hardware accel
+// - GetKeyboardLayout
+//
+// to begin...
+
 #include <dsound.h>
 #include <math.h>
 #include <profileapi.h>
