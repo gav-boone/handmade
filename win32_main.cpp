@@ -24,14 +24,15 @@
 #include <windows.h>
 #include <xinput.h>
 
-#include "handmade.h"
-
 #define private_func static
 #define local_persist static
 #define global_var static
 typedef double float64;
 typedef float float32;
 #define PI32 3.14159274101257324f
+
+#include "handmade.cpp"
+#include "handmade.h"
 
 struct win32_offscreen_buffer
 {
@@ -122,37 +123,6 @@ Win32GetWindowDimensions(HWND hWindow)
     Result.Height = ClientRect.bottom - ClientRect.top;
 
     return Result;
-}
-
-private_func void
-RenderWeirdGradient(win32_offscreen_buffer Buffer, int XOffset, int YOffset)
-{
-    uint8_t *Row = (uint8_t *)Buffer.Memory;
-    for (int Y = 0; Y < Buffer.Height; ++Y)
-    {
-        uint8_t *Pixel = (uint8_t *)Row;
-        for (int X = 0; X < Buffer.Width; ++X)
-        {
-            /*
-                Pixel in mem:
-                    BB GG RR xx
-                    0x xxRRGGBB
-            */
-
-            *Pixel = (uint8_t)(X + XOffset);
-            ++Pixel;
-
-            *Pixel = (uint8_t)(Y + YOffset);
-            ++Pixel;
-
-            *Pixel = (uint8_t)((X + XOffset + Y + YOffset) / 2);
-            ++Pixel;
-
-            *Pixel = 0;
-            ++Pixel;
-        }
-        Row += Buffer.Pitch;
-    }
 }
 
 private_func void
@@ -526,7 +496,14 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int C
 
                 Win32HandleControllerInputs();
 
-                GameUpdateAndRender();
+                game_offscreen_buffer Buffer = {};
+                Buffer.Memory = GlobalBackBuffer.Memory;
+                Buffer.Width = GlobalBackBuffer.Width;
+                Buffer.Height = GlobalBackBuffer.Height;
+                Buffer.Pitch = GlobalBackBuffer.Pitch;
+                Buffer.BytesPerPixel = GlobalBackBuffer.BytesPerPixel;
+
+                GameUpdateAndRender(&Buffer, GlobalXPosition, GlobalYPosition);
 
                 DWORD PlayCursor;
                 DWORD WriteCursor;
@@ -565,13 +542,13 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int C
                 float64 FramesPerSec = (float64)PerfCountFreq / (float64)CounterElapsed;
                 float64 MegaCycles = (float64)CyclesElapsed / (1000.0f * 1000.0f);
 
-                char Buffer[256];
-                sprintf(Buffer,
+                char PerfBuffer[256];
+                sprintf(PerfBuffer,
                         "Ms/Frame: %f  |  FPS: %f  | Cycles: %f\n",
                         MsPerFrame,
                         FramesPerSec,
                         MegaCycles);
-                OutputDebugStringA(Buffer);
+                OutputDebugStringA(PerfBuffer);
 
                 LastCounter = EndCounter;
                 LastCycleCount = EndCycleCount;
