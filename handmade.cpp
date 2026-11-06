@@ -1,4 +1,7 @@
 #include "handmade.h"
+#include <stdint.h>
+
+#define private_func static
 
 private_func void
 RenderWeirdGradient(game_offscreen_buffer *Buffer, int XOffset, int YOffset)
@@ -34,5 +37,5 @@ RenderWeirdGradient(game_offscreen_buffer *Buffer, int XOffset, int YOffset)
 private_func void
 GameUpdateAndRender(game_offscreen_buffer *Buffer, int XOffset, int YOffset)
 {
-    RenderWeirdGradient(*Buffer, XOffset, YOffset);
+    RenderWeirdGradient(Buffer, XOffset, YOffset);
 }

@@ -1,3 +1,5 @@
+#define private_func static
+
 #if !defined(HANDMADE_H)
 // Services platform -> game
 
