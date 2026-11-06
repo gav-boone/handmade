@@ -24,15 +24,7 @@
 #include <windows.h>
 #include <xinput.h>
 
-#define private_func static
-#define local_persist static
-#define global_var static
-typedef double float64;
-typedef float float32;
-#define PI32 3.14159274101257324f
-
 #include "handmade.cpp"
-#include "handmade.h"
 
 struct win32_offscreen_buffer
 {

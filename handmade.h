@@ -1,4 +1,4 @@
-#define private_func static
+#include "mydef.h"
 
 #if !defined(HANDMADE_H)
 // Services platform -> game
