@@ -17,46 +17,46 @@
 //
 // to begin...
 
+#include "handmade.cpp"
+
+#include <cstdint>
 #include <dsound.h>
 #include <math.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <windows.h>
 #include <xinput.h>
-
-#include "handmade.cpp"
 
 struct win32_offscreen_buffer
 {
     BITMAPINFO Info;
     void *Memory;
-    int Width;
-    int Height;
-    int Pitch;
-    int BytesPerPixel;
+    int32_t Width;
+    int32_t Height;
+    int32_t Pitch;
+    int32_t BytesPerPixel;
 };
 
 struct win32_window_dimensions
 {
-    int Width;
-    int Height;
+    int32_t Width;
+    int32_t Height;
 };
 
 struct win32_sound_output
 {
-    int SamplePerSecond;
+    int32_t SamplePerSecond;
     int32_t RunningSampleIndex;
     int16_t ToneVolume;
-    int WavePeriod;
-    int BytesPerSample;
-    int SecondaryBufferSize;
-    int LatencySampleCount;
+    int32_t WavePeriod;
+    int32_t BytesPerSample;
+    int32_t SecondaryBufferSize;
+    int32_t LatencySampleCount;
 };
 
 global_var win32_offscreen_buffer GlobalBackBuffer;
-global_var bool GlobalRunning;
-global_var int GlobalXPosition = 0;
-global_var int GlobalYPosition = 0;
+global_var bool32 GlobalRunning;
+global_var int32_t GlobalXPosition = 0;
+global_var int32_t GlobalYPosition = 0;
 global_var LPDIRECTSOUNDBUFFER GlobalSecondaryBuffer;
 
 #define X_INPUT_GET_STATE(name) DWORD WINAPI name(DWORD dwUserIndex, XINPUT_STATE *pState)
@@ -118,7 +118,7 @@ Win32GetWindowDimensions(HWND hWindow)
 }
 
 private_func void
-Win32ResizeDIBSection(win32_offscreen_buffer *Buffer, int Width, int Height)
+Win32ResizeDIBSection(win32_offscreen_buffer *Buffer, int32_t Width, int32_t Height)
 {
 
     if (Buffer->Memory)
@@ -137,7 +137,7 @@ Win32ResizeDIBSection(win32_offscreen_buffer *Buffer, int Width, int Height)
     Buffer->Info.bmiHeader.biBitCount = 32;
     Buffer->Info.bmiHeader.biCompression = BI_RGB;
 
-    int BufferMemorySize = Buffer->BytesPerPixel * Width * Height;
+    int32_t BufferMemorySize = Buffer->BytesPerPixel * Width * Height;
     Buffer->Memory = VirtualAlloc(0, BufferMemorySize, MEM_COMMIT, PAGE_READWRITE);
     Buffer->Pitch = Width * Buffer->BytesPerPixel;
 }
@@ -145,8 +145,8 @@ Win32ResizeDIBSection(win32_offscreen_buffer *Buffer, int Width, int Height)
 private_func void
 Win32DisplayBufferInWindow(win32_offscreen_buffer *Buffer,
                            HDC DeviceContext,
-                           int WindowWidth,
-                           int WindowHeight)
+                           int32_t WindowWidth,
+                           int32_t WindowHeight)
 {
     // TODO: aspect ratio correction
     StretchDIBits(DeviceContext,
@@ -168,9 +168,9 @@ private_func void
 Win32HandleKeyboardInputs(WPARAM WParam, WPARAM LParam)
 {
     uint32_t VKCode = WParam;
-    bool WasDown = ((LParam & (1 << 30)) != 0);
-    bool IsDown = ((LParam & (1 << 31)) == 0);
-    bool AltKeyWasDown = ((LParam & (1 << 29)) != 0);
+    bool32 WasDown = ((LParam & (1 << 30)) != 0);
+    bool32 IsDown = ((LParam & (1 << 31)) == 0);
+    bool32 AltKeyWasDown = ((LParam & (1 << 29)) != 0);
 
     if (WasDown != IsDown)
     {
@@ -288,18 +288,18 @@ Win32HandleControllerInputs()
         {
             XINPUT_GAMEPAD *Pad = &ControllerState.Gamepad;
 
-            bool DPadUp = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_UP);
-            bool DPadDown = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_DOWN);
-            bool DPadLeft = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_LEFT);
-            bool DPadRight = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_RIGHT);
-            bool Start = (Pad->wButtons & XINPUT_GAMEPAD_START);
-            bool Back = (Pad->wButtons & XINPUT_GAMEPAD_BACK);
-            bool Left_Shoulder = (Pad->wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER);
-            bool Right_Shoulder = (Pad->wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER);
-            bool AButton = (Pad->wButtons & XINPUT_GAMEPAD_A);
-            bool BButton = (Pad->wButtons & XINPUT_GAMEPAD_B);
-            bool XButton = (Pad->wButtons & XINPUT_GAMEPAD_X);
-            bool YButton = (Pad->wButtons & XINPUT_GAMEPAD_Y);
+            bool32 DPadUp = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_UP);
+            bool32 DPadDown = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_DOWN);
+            bool32 DPadLeft = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_LEFT);
+            bool32 DPadRight = (Pad->wButtons & XINPUT_GAMEPAD_DPAD_RIGHT);
+            bool32 Start = (Pad->wButtons & XINPUT_GAMEPAD_START);
+            bool32 Back = (Pad->wButtons & XINPUT_GAMEPAD_BACK);
+            bool32 Left_Shoulder = (Pad->wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER);
+            bool32 Right_Shoulder = (Pad->wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER);
+            bool32 AButton = (Pad->wButtons & XINPUT_GAMEPAD_A);
+            bool32 BButton = (Pad->wButtons & XINPUT_GAMEPAD_B);
+            bool32 XButton = (Pad->wButtons & XINPUT_GAMEPAD_X);
+            bool32 YButton = (Pad->wButtons & XINPUT_GAMEPAD_Y);
 
             int16_t StickX = Pad->sThumbLX;
             int16_t StickY = Pad->sThumbLY;
@@ -424,8 +424,8 @@ Win32FillSoundBuffer(win32_sound_output *SoundOutput, DWORD ByteToLock, DWORD By
     }
 }
 
-int CALLBACK
-WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int CmdShow)
+int32_t CALLBACK
+WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int32_t CmdShow)
 {
     LARGE_INTEGER PerfFreq;
     QueryPerformanceFrequency(&PerfFreq);

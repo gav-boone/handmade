@@ -12,12 +12,13 @@
 struct game_offscreen_buffer
 {
     void *Memory;
-    int Width;
-    int Height;
-    int Pitch;
-    int BytesPerPixel;
+    int32_t Width;
+    int32_t Height;
+    int32_t Pitch;
+    int32_t BytesPerPixel;
 };
-private_func void GameUpdateAndRender(game_offscreen_buffer *Buffer, int XOffset, int YOffset);
+private_func void
+GameUpdateAndRender(game_offscreen_buffer *Buffer, int32_t XOffset, int32_t YOffset);
 
 #define HANDMADE_H
 #endif

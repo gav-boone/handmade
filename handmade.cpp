@@ -1,13 +1,14 @@
 #include "handmade.h"
+#include <cstdint>
 
 private_func void
-RenderWeirdGradient(game_offscreen_buffer *Buffer, int XOffset, int YOffset)
+RenderWeirdGradient(game_offscreen_buffer *Buffer, int32_t XOffset, int32_t YOffset)
 {
     uint8_t *Row = (uint8_t *)Buffer->Memory;
-    for (int Y = 0; Y < Buffer->Height; ++Y)
+    for (int32_t Y = 0; Y < Buffer->Height; ++Y)
     {
         uint8_t *Pixel = (uint8_t *)Row;
-        for (int X = 0; X < Buffer->Width; ++X)
+        for (int32_t X = 0; X < Buffer->Width; ++X)
         {
             /*
                 Pixel in mem:
@@ -32,7 +33,7 @@ RenderWeirdGradient(game_offscreen_buffer *Buffer, int XOffset, int YOffset)
 }
 
 private_func void
-GameUpdateAndRender(game_offscreen_buffer *Buffer, int XOffset, int YOffset)
+GameUpdateAndRender(game_offscreen_buffer *Buffer, int32_t XOffset, int32_t YOffset)
 {
     RenderWeirdGradient(Buffer, XOffset, YOffset);
 }
