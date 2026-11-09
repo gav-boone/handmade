@@ -1,4 +1,5 @@
 #include "mydef.h"
+#include <cstdint>
 
 #if !defined(HANDMADE_H)
 // Services platform -> game
@@ -17,6 +18,14 @@ struct game_offscreen_buffer
     int32_t Pitch;
     int32_t BytesPerPixel;
 };
+
+struct game_sound_output_buffer
+{
+    int32_t SamplesPerSecond;
+    int32_t SampleCount;
+    int16_t *Samples;
+};
+
 private_func void
 GameUpdateAndRender(game_offscreen_buffer *Buffer, int32_t XOffset, int32_t YOffset);
 

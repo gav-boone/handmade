@@ -21,7 +21,6 @@
 
 #include <cstdint>
 #include <dsound.h>
-#include <math.h>
 #include <stdio.h>
 #include <windows.h>
 #include <xinput.h>
@@ -488,6 +487,12 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int32
 
                 Win32HandleControllerInputs();
 
+                int16_t Samples[(48000 / 30) * 2];
+                game_sound_output_buffer SoundBuffer = {};
+                SoundBuffer.SamplesPerSecond = SoundOutput.SamplePerSecond;
+                SoundBuffer.SampleCount = SoundBuffer.SamplesPerSecond / 30;
+                SoundBuffer.Samples = Samples;
+
                 game_offscreen_buffer Buffer = {};
                 Buffer.Memory = GlobalBackBuffer.Memory;
                 Buffer.Width = GlobalBackBuffer.Width;
@@ -495,7 +500,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int32
                 Buffer.Pitch = GlobalBackBuffer.Pitch;
                 Buffer.BytesPerPixel = GlobalBackBuffer.BytesPerPixel;
 
-                GameUpdateAndRender(&Buffer, GlobalXPosition, GlobalYPosition);
+                GameUpdateAndRender(&Buffer, GlobalXPosition, GlobalYPosition, &SoundBuffer);
 
                 DWORD PlayCursor;
                 DWORD WriteCursor;

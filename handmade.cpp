@@ -1,4 +1,26 @@
 #include "handmade.h"
+#include <cstdint>
+#include <math.h>
+
+void
+OutputGameSound(game_sound_output_buffer *SoundBuffer)
+{
+    local_persist float32 tSine;
+    int16_t ToneVolume = 500;
+    int32_t ToneHz = 256;
+    int32_t WavePeriod = SoundBuffer->SamplesPerSecond / ToneHz;
+
+    int16_t *SampleOut = SoundBuffer->Samples;
+    for (int32_t SampleIndex = 0; SampleIndex < SoundBuffer->SampleCount; ++SampleIndex)
+    {
+        float32 SineValue = sinf(tSine);
+        int16_t SampleValue = (int16_t)(SineValue * ToneVolume);
+        *SampleOut++ = SampleValue;
+        *SampleOut++ = SampleValue;
+
+        tSine += 2.0f * PI32 * ((float32)WavePeriod);
+    }
+}
 
 private_func void
 RenderWeirdGradient(game_offscreen_buffer *Buffer, int32_t XOffset, int32_t YOffset)
@@ -32,7 +54,12 @@ RenderWeirdGradient(game_offscreen_buffer *Buffer, int32_t XOffset, int32_t YOff
 }
 
 private_func void
-GameUpdateAndRender(game_offscreen_buffer *Buffer, int32_t XOffset, int32_t YOffset)
+GameUpdateAndRender(game_offscreen_buffer *Buffer,
+                    int32_t XOffset,
+                    int32_t YOffset,
+                    game_sound_output_buffer *SoundBuffer)
 {
+    // TODO: add bias to move sound relative to generation
+    OutputGameSound(SoundBuffer);
     RenderWeirdGradient(Buffer, XOffset, YOffset);
 }
