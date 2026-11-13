@@ -53,12 +53,31 @@ RenderWeirdGradient(game_offscreen_buffer *Buffer, int32_t XOffset, int32_t YOff
 }
 
 private_func void
-GameUpdateAndRender(game_offscreen_buffer *Buffer,
-                    int32_t XOffset,
-                    int32_t YOffset,
-                    game_sound_output_buffer *SoundBuffer,
-                    int32_t ToneHz)
+GameUpdateAndRender(game_input *Input,
+                    game_offscreen_buffer *Buffer,
+                    game_sound_output_buffer *SoundBuffer)
 {
+    local_persist int32_t XOffset = 0;
+    local_persist int32_t YOffset = 0;
+    local_persist int32_t ToneHz = 265;
+
+    game_controller_input *Input0 = &Input->Controllers[0];
+    if (Input0->isAnalog)
+    {
+        // use analog tuning
+        ToneHz = 256 + (int32_t)(128.0f * (Input0->EndX));
+        XOffset += (int32_t)4.0f * (Input0->EndY);
+    }
+    else
+    {
+        // use digital tuning
+    }
+
+    if (Input0->Down.EndedDown)
+    {
+        YOffset += 1;
+    }
+
     // TODO: add bias to move sound relative to generation
     OutputGameSound(SoundBuffer, ToneHz);
     RenderWeirdGradient(Buffer, XOffset, YOffset);
