@@ -21,6 +21,7 @@
 
 #include <cstdint>
 #include <dsound.h>
+#include <memoryapi.h>
 #include <stdio.h>
 #include <windows.h>
 #include <xinput.h>
@@ -46,6 +47,7 @@ struct win32_sound_output
     int32_t SamplesPerSecond;
     int32_t RunningSampleIndex;
     int16_t ToneVolume;
+    int32_t ToneHz;
     int32_t WavePeriod;
     int32_t BytesPerSample;
     int32_t SecondaryBufferSize;
@@ -484,7 +486,8 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int32
             SoundOutput.SamplesPerSecond = 48000;
             SoundOutput.RunningSampleIndex = 0;
             SoundOutput.ToneVolume = 500;
-            SoundOutput.WavePeriod = SoundOutput.SamplesPerSecond / 256;
+            SoundOutput.ToneHz = 256;
+            SoundOutput.WavePeriod = SoundOutput.SamplesPerSecond / SoundOutput.ToneHz;
             SoundOutput.BytesPerSample = sizeof(int16_t) * 2;
             SoundOutput.SecondaryBufferSize =
                 SoundOutput.SamplesPerSecond * SoundOutput.BytesPerSample;
@@ -494,6 +497,9 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int32
             Win32InitDSound(hWindow, SoundOutput.SamplesPerSecond, SoundOutput.SecondaryBufferSize);
             Win32ClearSoundBuffer(&SoundOutput);
             GlobalSecondaryBuffer->Play(0, 0, DSBPLAY_LOOPING);
+
+            int16_t *Samples = (int16_t *)
+                VirtualAlloc(0, SoundOutput.SecondaryBufferSize, MEM_COMMIT, PAGE_READWRITE);
 
             LARGE_INTEGER LastCounter;
             QueryPerformanceCounter(&LastCounter);
@@ -532,7 +538,6 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int32
                     SoundIsValid = true;
                 }
 
-                int16_t Samples[48000 * 2];
                 game_sound_output_buffer SoundBuffer = {};
                 SoundBuffer.SamplesPerSecond = SoundOutput.SamplesPerSecond;
                 SoundBuffer.SampleCount = BytesToWrite / SoundOutput.BytesPerSample;
@@ -544,7 +549,11 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int32
                 Buffer.Height = GlobalBackBuffer.Height;
                 Buffer.Pitch = GlobalBackBuffer.Pitch;
                 Buffer.BytesPerPixel = GlobalBackBuffer.BytesPerPixel;
-                GameUpdateAndRender(&Buffer, GlobalXPosition, GlobalYPosition, &SoundBuffer);
+                GameUpdateAndRender(&Buffer,
+                                    GlobalXPosition,
+                                    GlobalYPosition,
+                                    &SoundBuffer,
+                                    SoundOutput.ToneHz);
 
                 if (SoundIsValid)
                 {
