@@ -513,11 +513,11 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int32
 
                 Win32HandleControllerInputs();
 
-                DWORD ByteToLock;
-                DWORD BytesToWrite;
-                DWORD TargetCursor;
-                DWORD PlayCursor;
-                DWORD WriteCursor;
+                DWORD ByteToLock = 0;
+                DWORD BytesToWrite = 0;
+                DWORD TargetCursor = 0;
+                DWORD PlayCursor = 0;
+                DWORD WriteCursor = 0;
                 bool32 SoundIsValid = false;
                 if (SUCCEEDED(GlobalSecondaryBuffer->GetCurrentPosition(&PlayCursor, &WriteCursor)))
                 {
