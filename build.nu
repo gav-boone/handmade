@@ -20,6 +20,9 @@ let args = [
     "-fuse-ld=lld"
     "-Wl,--pdb=bin/handmade.pdb"
     "-lgdi32"
+    "-Weverything"
+    "-Werror"
+    "-ferror-limit=0"
 ]
 run-external $clang ...$args
 

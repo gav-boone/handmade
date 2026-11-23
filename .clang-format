@@ -1,6 +1,7 @@
 BasedOnStyle: LLVM
-AlignAfterOpenBracket: true
+AlignAfterOpenBracket: Align
 AlignArrayOfStructures: Left
+AllowAllArgumentsOnNextLine: false
 AlignConsecutiveAssignments: Consecutive
 AlignConsecutiveBitFields: Consecutive
 AlignConsecutiveDeclarations: Consecutive
@@ -23,14 +24,22 @@ InsertBraces: true
 InsertNewlineAtEOF: true
 KeepEmptyLines: 
   AtEndOfFile: true
+LineEnding: LF
+PackArguments: 
+  BinPack: OnePerLine
+PackParameters:
+  BinPack: UseBreakAfter
+  BreakAfter: 1
+PointerAlignment: Left
+ReferenceAlignment: Pointer
+ReflowComments: Always
+SeparateDefinitionBlocks: Leave 
+SortIncludes: 
+  Enabled: false
+SpaceBeforeParens: ControlStatements
 IndentWidth: 4
 TabWidth: 4
 UseTab: Never
 ContinuationIndentWidth: 4
-
-# Break function args/params onto their own lines when the line is too long.
-ColumnLimit: 100
-BinPackArguments: false
-BinPackParameters: false
-AllowAllArgumentsOnNextLine: false
-AllowAllParametersOfDeclarationOnNextLine: false
+ColumnLimit: 80
+PenaltyBreakAssignment: 1000
