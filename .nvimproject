@@ -1,0 +1,2 @@
+[build] nu build.nu
+[format] clang-format -i -style=file:.clang-format *.cpp *.h

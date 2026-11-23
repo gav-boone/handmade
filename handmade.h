@@ -12,7 +12,7 @@
 // 4. Sound Buffer
 struct game_offscreen_buffer
 {
-    void *Memory;
+    void   *Memory;
     int32_t Width;
     int32_t Height;
     int32_t Pitch;
@@ -21,15 +21,15 @@ struct game_offscreen_buffer
 
 struct game_sound_output_buffer
 {
-    int32_t SamplesPerSecond;
-    int32_t SampleCount;
+    int32_t  SamplesPerSecond;
+    int32_t  SampleCount;
     int16_t *Samples;
 };
 
 struct game_button_state
 {
     int32_t HalfTransitionCount;
-    bool32 EndedDown;
+    bool32  EndedDown;
 };
 struct game_controller_input
 {
@@ -65,8 +65,8 @@ struct game_input
     game_controller_input Controllers[4];
 };
 
-private_func void GameUpdateAndRender(game_input *Input,
-                                      game_offscreen_buffer *Buffer,
+private_func void GameUpdateAndRender(game_input               *Input,
+                                      game_offscreen_buffer    *Buffer,
                                       game_sound_output_buffer *SoundBuffer);
 
 #define HANDMADE_H

@@ -1,9 +1,32 @@
 BasedOnStyle: LLVM
+AlignAfterOpenBracket: true
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments: Consecutive
+AlignConsecutiveBitFields: Consecutive
+AlignConsecutiveDeclarations: Consecutive
+AlignConsecutiveMacros: Consecutive
+AlignEscapedNewlines: Left
+AlignTrailingComments: Always
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseExpressionOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortRecordOnASingleLine: Empty
+BreakAfterReturnType: AllDefinitions
+BitFieldColonSpacing: Both
+BreakAfterAttributes: Always
+BreakBeforeBraces: Allman
+InsertBraces: true
+InsertNewlineAtEOF: true
+KeepEmptyLines: 
+  AtEndOfFile: true
 IndentWidth: 4
 TabWidth: 4
 UseTab: Never
 ContinuationIndentWidth: 4
-BreakBeforeBraces: Allman
 
 # Break function args/params onto their own lines when the line is too long.
 ColumnLimit: 100
@@ -11,4 +34,3 @@ BinPackArguments: false
 BinPackParameters: false
 AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
-BreakAfterReturnType: AllDefinitions
